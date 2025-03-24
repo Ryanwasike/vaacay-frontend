@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://cdn.pixabay.com/photo/2017/08/06/01/07/nature-2587331_1280.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+        }
+
+        /* Animated Text */
+        .welcome-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid white;
+            width: 0;
+            animation: typing 2s steps(12) forwards, blink 0.8s infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 160px; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        .login-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+            width: 300px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .form-group button {
+            background-color: hsl(214, 91%, 46%);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .form-group button:hover {
+            background-color: #123ecf;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="welcome-text">Welcome Back!</div>
+
+    <div class="login-container">
+        <h2>Log in</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Enter Email</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Log in</button>
+            </div>
+            <p>Do not have an account? <a href="signup.html">Sign up</a></p>
+            <p id="errorMessage" class="error-message"></p>
+            <p><a href="forgotpass.html">Forgot Password?</a></p>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            console.log("Sending request to backend...");
+            console.log("Email:", email);
+            console.log("Password:", password); // Be careful with logging passwords in production
+
+            try {
+                const response = await fetch("http://localhost:5001/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, password })
+                });
+
+                console.log("Response status:", response.status);
+                const data = await response.json();
+                console.log("Response data:", data);
+
+                if (response.ok) {
+                    localStorage.setItem("token", data.token); // Store JWT token
+                    window.location.href = "dashboard.html"; // Redirect to dashboard
+                } else {
+                    errorMessage.textContent = data.error || "Invalid login credentials";
+                }
+            } catch (error) {
+                errorMessage.textContent = "Error logging in. Please try again.";
+            }
+        });
+    </script>
+
+</body>
+</html>

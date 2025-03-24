@@ -1,0 +1,163 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-image: url('');
+}
+
+header {
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100px;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    justify-content: flex;
+}
+
+.nav-right img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+
+
+.sidebar {
+    width: 200px;
+    background-color: rgba(26, 23, 23, 0.918);
+    color: white;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: -200px; /* Hide sidebar off-screen by default */
+    overflow-x: hidden;
+    padding-top: 20px;
+    transition: left 0.3s ease-in-out; /* Smooth transition */
+    display: flex;
+    flex-direction: column;
+    z-index: 1000; /* Ensure it appears above other content */
+}
+
+.sidebar.visible {
+    left: 0; /* Bring sidebar into view */
+}
+
+.sidebar a {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 16px;
+    color: white;
+    display: block;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.sidebar a:hover {
+    background-color: #555;
+    transform: translateX(-15px);
+    box-shadow: 0 0 10px rgba(10, 71, 204, 0.308);
+}
+
+#menu-button {
+    background: none;
+    border: none;
+    color:black;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+    margin-bottom: 20px;
+    position: fixed; /* Keep menu button visible */
+    top: 20px;
+    left: 20px;
+    z-index: 1001; /* Ensure it appears above the sidebar */
+    transition: transform 0.3s ease-in-out; /* Smooth rotation */
+}
+
+#menu-button.rotate {
+    transform: rotate(90deg); /* Rotate the button */
+}
+
+#menu-button:hover {
+    color: #3498db;
+    transition: translateX(5px);
+}
+
+main {
+    margin-left: 0; /* No margin needed since sidebar is hidden by default */
+    padding: 20px;
+    flex: 1;
+}
+
+section {
+    background-color: transparent;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}
+
+section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    margin-top: auto;
+}
+
+section a {
+    text-decoration: none;
+    color: #0c0c0c;
+}
+
+section a:hover {
+    transform: translateY(-2px);
+    color: #555;
+}
+#expenses {
+    background-image:url('https://media.istockphoto.com/id/1058206702/photo/model-plane-and-calculator-on-wooden-table.jpg?s=1024x1024&w=is&k=20&c=efu62RdIGWd5sTmRGuUNP4vDuKH3PZAJtUJmIiyJif0=');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px;
+    color: rgba(38, 18, 216, 0.466);
+    font-weight: bold;
+  }
+#budget { 
+    background-image: url('https://media.istockphoto.com/id/495853751/photo/budget-concept.jpg?s=1024x1024&w=is&k=20&c=yZzLrCL6gChqBT5V6dDVNmnma7S5yexfBuwGn_eF4Hg=');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px;
+    color: rgba(38, 18, 216, 0.466);
+    font-weight: bold;
+
+}
+#savings{
+    background-image: url('https://cdn.pixabay.com/photo/2016/12/06/04/17/money-1885540_1280.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px;
+    color: rgba(38, 18, 216, 0.466);
+    font-weight: bold;
+
+}

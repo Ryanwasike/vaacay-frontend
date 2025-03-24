@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="javascript" href="dashboard.js">
+</head>
+<body>
+    <header>
+        <nav>
+           <h2>Vaacay</h2>
+        </nav>
+    </header>
+    
+    <div class="sidebar" id="sidebar">
+        <button id="menu-button"><i class="fas fa-bars"></i></button>
+        <a href="notification.html"><i class="fas fa-bell"></i> Notifications</a>
+        <a href="savings.html"><i class="fas fa-piggy-bank"></i> Savings</a>
+        <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="plans.html"><i class="fas fa-calendar"></i> Your Vacation Plans</a>
+        <a href="expenses.html"><i class="fas fa-chart-line"></i> Track Expense</a>
+        <a href="help.html"><i class="fas fa-question-circle"></i> Help</a>
+        <a href="logout.html"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+    </div>
+    
+    <main>
+        <section id="budget">
+            <h2><a href="budget.html">Create Your Budget</a></h2>
+            <p>Plan your vacation budget to stay on track.</p>
+        </section>
+        
+        <section id="expenses">
+            <h2><a href="expenses.html">Track Your Expenses</a></h2>
+            <p>Record your spendings during the vacation.</p>
+        </section>
+        
+        <section id="savings">
+            <h2><a href="savings.html">Savings</a></h2>
+            <p>See how much you've saved for your trip.</p>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 Vacation Budget Planner</p>
+    </footer>
+    
+    <script>
+        // Getting references to the sidebar and menu button
+        const sidebar = document.getElementById('sidebar');
+        const menuButton = document.getElementById('menu-button');
+
+        // Toggle the sidebar visibility and rotate the menu button
+        menuButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the click from bubbling up
+            sidebar.classList.toggle('visible');
+            menuButton.classList.toggle('rotate');
+        });
+
+        // Close the sidebar when clicking outside of it
+        document.addEventListener('click', (event) => {
+            const isClickInsideSidebar = sidebar.contains(event.target);
+            const isClickOnMenuButton = menuButton.contains(event.target);
+
+            if (!isClickInsideSidebar && !isClickOnMenuButton && sidebar.classList.contains('visible')) {
+                sidebar.classList.remove('visible');
+                menuButton.classList.remove('rotate');
+            }
+        });
+
+        // New user alert
+        function checkNewUser() {
+            if (localStorage.getItem('newUser') === 'true') {
+                alert('Congratulations! Your profile has been created!');
+                localStorage.removeItem('newUser');
+            }
+        }
+        
+        window.onload = checkNewUser;
+    </script>
+</body>
+</html>

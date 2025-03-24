@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Planner</title>
+    <link rel="stylesheet" href="budget.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="dashboard.html" class="back-btn">&#8592; Back to Dashboard</a>
+            <h1>Create Your Budget</h1>
+            <a href="notification.html" class="notification-btn">
+                🔔 Notifications <span id="notification-dot"></span>
+            </a>
+        </nav>
+    </header>
+    
+    <main>
+        <!-- Budget Templates Section -->
+        <section id="budget-templates">
+            <h2>Choose a Budget Template</h2>
+            <button class="template-btn" data-template="luxury">Luxury Trip</button>
+            <button class="template-btn" data-template="budget">Budget Travel</button>
+            <button class="template-btn" data-template="family">Family Vacation</button>
+        </section>
+        
+        <!-- Budget Planner Section -->
+        <section id="budget-planner">
+            <h2>Set Your Budget</h2>
+            
+            <label for="total-income">Total Income:</label>
+            <input type="number" id="total-income" placeholder="Enter total vacation budget">
+            
+            <h3>Budget Categories</h3>
+            <div id="category-container">
+                <div class="category">
+                    <label for="food-budget">Food: <span id="food-value">20%</span></label>
+                    <input type="range" id="food-budget" min="0" max="100" value="20"> 
+                </div>
+                <div class="category">
+                    <label for="travel-budget">Travel: <span id="travel-value">30%</span></label>
+                    <input type="range" id="travel-budget" min="0" max="100" value="30">
+                </div>
+                <div class="category">
+                    <label for="accommodation-budget">Accommodation: <span id="accommodation-value">50%</span></label>
+                    <input type="range" id="accommodation-budget" min="0" max="100" value="50">
+                </div>
+            </div>
+            
+            <button id="save-budget">Save Budget</button>
+            
+            <section id="budget-summary">
+                <h2>Budget Summary</h2>
+                <p><strong>Total Budget:</strong> $<span id="total-budget">0</span></p>
+                <p><strong>Total Expenses:</strong> $<span id="total-expenses">0</span></p>
+                <p><strong>Remaining Budget:</strong> $<span id="remaining-budget">0</span></p>
+            
+                <div id="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+            </section>
+        </section>
+        
+        <section id="alerts">
+            <h2>Budget Alerts</h2>
+            <p id="alert-message">Stay within your budget! Exceeding limit will trigger alerts.</p>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025 Vacation Budget Planner</p>
+    </footer>
+    
+    <script src="budget.js"></script>
+</body>
+</html>
