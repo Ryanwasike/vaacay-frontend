@@ -5,15 +5,19 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #f4f4f4;
+    background-image: url('https://cdn.pixabay.com/photo/2017/08/06/01/07/nature-2587331_1280.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
 }
 
 .logout-container {
-    background: white;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     text-align: center;
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 button {
