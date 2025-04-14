@@ -8,92 +8,137 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressBar = document.getElementById("progress-bar");
     const progressText = document.getElementById("progress-text");
 
-    let savingsGoal = 0;
-    let totalSaved = 0;
-    let savingsHistory = [];
+    // Load saved data from localStorage
+    let savingsGoal = parseFloat(localStorage.getItem('savingsGoal')) || 0;
+    let totalSaved = parseFloat(localStorage.getItem('totalSaved')) || 0;
+    let savingsHistory = JSON.parse(localStorage.getItem('savingsHistory')) || [];
+
+    // Initialize savings goal if it exists
+    if (savingsGoal > 0) {
+        savingsGoalInput.value = savingsGoal;
+    }
 
     // Initialize Chart.js
     const ctx = document.getElementById("savingsChart").getContext("2d");
     const savingsChart = new Chart(ctx, {
-        type: "line", // Use a line chart
+        type: "line",
         data: {
-            labels: [], // Labels for the x-axis
+            labels: savingsHistory.map((_, i) => `Transaction ${i+1}`),
             datasets: [{
                 label: "Total Savings",
-                data: [], // Data for the y-axis
+                data: savingsHistory,
                 borderColor: "#3498db",
-                fill: false,
-            }],
+                backgroundColor: "rgba(52, 152, 219, 0.1)",
+                fill: true,
+                tension: 0.4
+            }]
         },
         options: {
             responsive: true,
             scales: {
                 y: {
                     beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Amount ($)'
+                    }
                 },
-            },
-        },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Transactions'
+                    }
+                }
+            }
+        }
     });
 
     // Update the display with current savings and progress
     function updateDisplay() {
-        totalSavedDisplay.textContent = `$${totalSaved}`;
-        const remaining = savingsGoal - totalSaved;
-        remainingDisplay.textContent = `$${remaining > 0 ? remaining : 0}`;
+        totalSavedDisplay.textContent = `$${totalSaved.toFixed(2)}`;
+        const remaining = Math.max(0, savingsGoal - totalSaved);
+        remainingDisplay.textContent = `$${remaining.toFixed(2)}`;
 
         // Update progress bar
-        const progress = (totalSaved / savingsGoal) * 100;
+        const progress = savingsGoal > 0 ? (totalSaved / savingsGoal) * 100 : 0;
         progressBar.value = progress;
         progressText.textContent = `${progress.toFixed(2)}% Completed`;
 
         // Check if the savings goal is reached
-        if (totalSaved >= savingsGoal) {
-            alert(`🎉 Congratulations! You reached your savings goal of $${savingsGoal}!`);
+        if (savingsGoal > 0 && totalSaved >= savingsGoal) {
+            showNotification(`🎉 Congratulations! You reached your savings goal of $${savingsGoal}!`);
+        }
+
+        // Save to localStorage
+        localStorage.setItem('totalSaved', totalSaved);
+        localStorage.setItem('savingsHistory', JSON.stringify(savingsHistory));
+        if (savingsGoal > 0) {
+            localStorage.setItem('savingsGoal', savingsGoal);
         }
 
         // Update the chart
-        savingsChart.data.labels.push(`Transaction ${savingsHistory.length}`);
-        savingsChart.data.datasets[0].data.push(totalSaved);
+        savingsChart.data.labels = savingsHistory.map((_, i) => `Transaction ${i+1}`);
+        savingsChart.data.datasets[0].data = savingsHistory;
         savingsChart.update();
+    }
+
+    // Show notification
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 
     // Add savings
     addSavingsBtn.addEventListener("click", () => {
         const amount = parseFloat(amountInput.value);
-        if (isNaN(amount)){
-            alert("Please enter a valid amount.");
+        if (isNaN(amount) || amount <= 0) {
+            showNotification("Please enter a valid amount.");
             return;
         }
         totalSaved += amount;
         savingsHistory.push(totalSaved);
+        amountInput.value = '';
         updateDisplay();
+        showNotification(`$${amount.toFixed(2)} added to savings!`);
     });
 
     // Withdraw savings
     withdrawSavingsBtn.addEventListener("click", () => {
         const amount = parseFloat(amountInput.value);
-        if (isNaN(amount)) {
-            alert("Please enter a valid amount.");
+        if (isNaN(amount) || amount <= 0) {
+            showNotification("Please enter a valid amount.");
             return;
         }
         if (amount > totalSaved) {
-            alert("You cannot withdraw more than your total savings.");
+            showNotification("You cannot withdraw more than your total savings.");
             return;
         }
         totalSaved -= amount;
         savingsHistory.push(totalSaved);
+        amountInput.value = '';
         updateDisplay();
+        showNotification(`$${amount.toFixed(2)} withdrawn from savings.`);
     });
 
     // Set savings goal
     savingsGoalInput.addEventListener("change", () => {
         const goal = parseFloat(savingsGoalInput.value);
         if (isNaN(goal) || goal <= 0) {
-            alert("Please enter a valid savings goal.");
+            showNotification("Please enter a valid savings goal.");
+            savingsGoalInput.value = '';
             return;
         }
         savingsGoal = goal;
-        progressBar.max = 100;
         updateDisplay();
+        showNotification(`Savings goal set to $${goal.toFixed(2)}!`);
     });
+
+    // Initial display update
+    updateDisplay();
 });

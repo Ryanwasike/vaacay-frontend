@@ -6,21 +6,20 @@
     <title>Savings Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="savings.css">
-    <script defer src="mpesa.js"></script>
+    <script defer src="savings.js"></script>
 </head>
 <body>
-    
     <div class="container">
         <h2>Vacation Savings Tracker</h2>
 
         <label for="savings-goal">Set Your Savings Goal ($):</label>
         <input type="number" id="savings-goal" placeholder="Enter goal amount">
 
-        <label for="amount">Enter Savings ($):</label>
+        <label for="amount">Enter Amount ($):</label>
         <input type="number" id="amount" placeholder="Enter amount">
         
-        <button id="add-savings" onclick="depositToSavings()">Add Savings</button>
-        <button id="withdraw-savings" onclick="withdrawFromMpesa()">Withdraw</button>
+        <button id="add-savings">Add Savings</button>
+        <button id="withdraw-savings">Withdraw</button>
 
         <h3>Total Saved: <span id="total-saved">$0</span></h3>
         <h3>Remaining: <span id="remaining">$0</span></h3>
@@ -32,31 +31,5 @@
 
         <canvas id="savingsChart"></canvas>
     </div>
-
-    <script>
-        function withdrawFromMpesa() {
-            const amount = document.getElementById('amount').value;
-            if (!amount || amount <= 0) {
-                alert("Please enter a valid amount.");
-                return;
-            }
-            fetch('/withdraw', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ amount })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Transaction failed. Please try again.");
-            });
-        }
-    </script>
-    <script src="savings.js"></script>
 </body>
 </html>

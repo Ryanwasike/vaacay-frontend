@@ -11,16 +11,25 @@
     <header>
         <nav>
             <a href="dashboard.html" class="back-btn">&#8592; Back to Dashboard</a>
-            <h1>Notifications <span id="notification-dot"></span></h1>
+            <h1>Notifications <span id="notification-badge" class="badge">0</span></h1>
         </nav>
     </header>
     
     <main>
-        <h2>Your Alerts</h2>
-        <ul id="notification-list">
-            <!-- Notifications will be dynamically added here -->
-        </ul>
-        <button id="clear-notifications">Clear All Notifications</button>
+        <div class="notification-header">
+            <h2>Your Alerts</h2>
+            <button id="mark-all-read">Mark All as Read</button>
+        </div>
+        
+        <div id="notification-container">
+            <ul id="notification-list">
+                <!-- Notifications will be dynamically added here -->
+            </ul>
+        </div>
+        
+        <div class="notification-actions">
+            <button id="clear-notifications">Clear All Notifications</button>
+        </div>
     </main>
     
     <footer>
