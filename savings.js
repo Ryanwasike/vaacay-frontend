@@ -1,8 +1,3 @@
-// Helper function for sending notifications (replace with your actual notification logic)
-function sendNotification(message) {
-    alert(message);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     const savingsGoalInput = document.getElementById("savings-goal");
     const amountInput = document.getElementById("amount");
@@ -53,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Check if the savings goal is reached
         if (totalSaved >= savingsGoal) {
-            sendNotification(`🎉 Congratulations! You reached your savings goal of $${savingsGoal}!`);
+            alert(`🎉 Congratulations! You reached your savings goal of $${savingsGoal}!`);
         }
 
         // Update the chart
@@ -102,45 +97,3 @@ document.addEventListener("DOMContentLoaded", () => {
         updateDisplay();
     });
 });
-
-
-function depositToSavings() {
-    const amount = parseFloat(document.getElementById('amount').value);
-    const phoneNumber = "YOUR_PHONE_NUMBER"; // Replace with user's phone
-
-    if (!amount || amount <= 0) {
-        alert("Enter a valid amount.");
-        return;
-    }
-
-    fetch('/api/savings/deposit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber, amount })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        document.getElementById('total-saved').innerText = `$${data.totalSavings}`;
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert("Transaction failed. Try again.");
-    });
-}
-
-
-
-async function depositToSavings() {
-    const phoneNumber = document.getElementById("phone-number").value;
-    const amount = document.getElementById("amount").value;
-
-    const response = await fetch("/api/savings/mpesa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber, amount }),
-    });
-
-    const data = await response.json();
-    alert(data.message);
-}

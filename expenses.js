@@ -1,5 +1,45 @@
-document.addEventListener("DOMContentLoaded", function() {
-    // Get DOM elements
+document.addEventListener('DOMContentLoaded', function() {
+    const budgetData = JSON.parse(localStorage.getItem('budgetData')) || {};
+    
+    let totalSpent = 0;
+    let categorySpent = { food: 0, travel: 0, accommodation: 0 };
+
+    document.getElementById('add-expense').addEventListener('click', function() {
+        const expenseName = document.getElementById('expense-name').value;
+        const expenseAmount = parseFloat(document.getElementById('expense-amount').value);
+        
+        // Assign categories dynamically
+        const category = prompt("Enter category: food, travel, or accommodation").toLowerCase();
+        
+        if (categorySpent[category] !== undefined) {
+            categorySpent[category] += expenseAmount;
+            totalSpent += expenseAmount;
+
+            updateProgress();
+        } else {
+            alert("Invalid category! Please enter food, travel, or accommodation.");
+        }
+    });
+
+    function updateProgress() {
+        Object.keys(categorySpent).forEach(category => {
+            const budget = parseFloat(budgetData[category] || 0);
+            const spent = categorySpent[category];
+
+            let percentageSpent = (spent / budget) * 100;
+            let color = percentageSpent < 80 ? "green" : percentageSpent < 100 ? "yellow" : "red";
+
+            document.getElementById(`${category}-value`).innerText = `${percentageSpent.toFixed(2)}% spent`;
+            document.getElementById(`${category}-value`).style.color = color;
+
+            if (percentageSpent >= 100) {
+                alert(`Warning! You have exceeded your ${category} budget.`);
+            }
+        });
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
     const expenseName = document.getElementById("expense-name");
     const expenseAmount = document.getElementById("expense-amount");
     const expenseCategory = document.getElementById("expense-category");
@@ -13,19 +53,97 @@ document.addEventListener("DOMContentLoaded", function() {
     // Initialize variables with entertainment category
     let expenses = [];
     let totalExpense = 0;
-    let categoryExpenses = { 
-        food: 0, 
-        travel: 0, 
-        accommodation: 0,
-        entertainment: 0 
-    };
-    
-    let budgetData = JSON.parse(localStorage.getItem('budgetData')) || {};
-    
-    // Update category options in the select element
-    updateCategoryOptions();
+    let categoryExpenses = { food: 0, travel: 0, accommodation: 0 };
+    let budgetLimit = 500; // Example budget
 
-    // Initialize Chart.js with all categories
+    addExpenseBtn.addEventListener("click", () => {
+        const name = expenseName.value.trim();
+        const amount = parseFloat(expenseAmount.value);
+        const category = expenseCategory.value;
+
+        if (name === "" || isNaN(amount) || amount <= 0) {
+            alert("Please enter valid expense details.");
+            return;
+        }
+
+        // Add expense to list
+        const li = document.createElement("li");
+        li.textContent = `${name}: $${amount} (${category})`;
+        expenseList.appendChild(li);
+
+        // Update total expense
+        totalExpense += amount;
+        categoryExpenses[category] += amount;
+        totalExpenseDisplay.textContent = `$${totalExpense}`;
+
+        // Update progress bar
+        updateProgress();
+
+        // Check for alerts
+        checkAlerts(category);
+
+        // Clear input fields
+        expenseName.value = "";
+        expenseAmount.value = "";
+    });
+
+    function updateProgress() {
+        Object.keys(categoryExpenses).forEach(category => {
+            const progressBar = document.getElementById(`${category}-progress`);
+            const percentage = (categoryExpenses[category] / budgetLimit) * 100;
+            progressBar.style.width = `${percentage}%`;
+            progressBar.style.backgroundColor = percentage >= 100 ? "red" : "#4caf50";
+        });
+
+        if (totalExpense > budgetLimit) {
+            budgetStatus.textContent = "Warning: You are exceeding your budget!";
+            budgetStatus.style.color = "red";
+        } else {
+            budgetStatus.textContent = "You are within your budget.";
+            budgetStatus.style.color = "green";
+        }
+    }
+
+    function checkAlerts(category) {
+        if (categoryExpenses[category] > budgetLimit / 2) {
+            sendNotification(`You're spending a lot on ${category}!`);
+        }
+        if (totalExpense > budgetLimit) {
+            sendNotification("You have exceeded your budget!");
+        }
+    }
+
+    function sendNotification(message){
+        alert(message); // Replace with notification page functionality
+    }
+});
+
+document.getElementById("receipt-upload").addEventListener("change", function(event) {
+    const { files } = event.target;
+    const receiptContainer = document.getElementById("uploaded-receipts");
+    receiptContainer.innerHTML = ""; // Clear previous receipts
+
+    for (let i = 0; i < files.length; i++) {
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(files[i]);
+        img.style.width = "100px";
+        img.style.margin = "5px";
+        receiptContainer.appendChild(img);
+    }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const expenseName = document.getElementById("expense-name");
+    const expenseAmount = document.getElementById("expense-amount");
+    const expenseCategory = document.getElementById("expense-category");
+    const addExpenseBtn = document.getElementById("add-expense");
+    const expenseList = document.getElementById("expense-list");
+    const totalExpenseDisplay = document.getElementById("total-expense");
+
+    let totalExpense = 0;
+    let categoryExpenses = { Food: 0, Travel: 0, Accommodation: 0 };
+
+    // Initialize Chart.js
     const ctx = document.getElementById("expenseChart").getContext("2d");
     const expenseChart = new Chart(ctx, {
         type: "doughnut",
@@ -44,41 +162,13 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
-    // Load existing expenses from localStorage
-    loadExpenses();
-    updateProgress();
-
-    // Event listeners
-    addExpenseBtn.addEventListener("click", addExpense);
-    receiptUpload.addEventListener("change", handleReceiptUpload);
-
-    function updateCategoryOptions() {
-        // Clear existing options
-        expenseCategory.innerHTML = '';
-        
-        // Add all categories including entertainment
-        const categories = [
-            { value: "food", text: "Food" },
-            { value: "travel", text: "Travel" },
-            { value: "accommodation", text: "Accommodation" },
-            { value: "entertainment", text: "Entertainment" }
-        ];
-        
-        categories.forEach(cat => {
-            const option = document.createElement("option");
-            option.value = cat.value;
-            option.textContent = cat.text;
-            expenseCategory.appendChild(option);
-        });
-    }
-
-    function addExpense() {
+    addExpenseBtn.addEventListener("click", () => {
         const name = expenseName.value.trim();
         const amount = parseFloat(expenseAmount.value);
-        const category = expenseCategory.value;
+        const category = expenseCategory.value.toLowerCase();
 
         if (name === "" || isNaN(amount) || amount <= 0) {
-            showAlert("Please enter valid expense details.", "error");
+            alert("Please enter valid expense details.");
             return;
         }
 
@@ -97,198 +187,93 @@ document.addEventListener("DOMContentLoaded", function() {
         // Update totals
         totalExpense += amount;
         categoryExpenses[category] += amount;
+        totalExpense += amount;
+        totalExpenseDisplay.textContent = `$${totalExpense}`;
 
-        // Save to localStorage
-        saveExpenses();
-        
-        // Update UI
-        renderExpense(expense);
-        updateProgress();
-        updateChart();
-        
-        // Check budget limits
-        checkBudgetLimits(category, amount);
-        
-        // Clear inputs
-        expenseName.value = "";
-        expenseAmount.value = "";
-        
-        showAlert("Expense added successfully!");
-    }
-
-    function loadExpenses() {
-        const savedExpenses = JSON.parse(localStorage.getItem('expenses')) || [];
-        expenses = savedExpenses;
-        
-        // Calculate totals
-        totalExpense = 0;
-        categoryExpenses = { 
-            food: 0, 
-            travel: 0, 
-            accommodation: 0,
-            entertainment: 0 
-        };
-        
-        expenses.forEach(expense => {
-            totalExpense += expense.amount;
-            categoryExpenses[expense.category] += expense.amount;
-        });
-        
-        // Render all expenses
-        expenseList.innerHTML = "";
-        expenses.forEach(expense => renderExpense(expense));
-        
-        // Update displays
-        totalExpenseDisplay.textContent = `$${totalExpense.toFixed(2)}`;
-        updateChart();
-    }
-
-    function renderExpense(expense) {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <span>${expense.name}: $${expense.amount.toFixed(2)} (${expense.category})</span>
-            <button class="delete-btn" data-id="${expense.id}">❌</button>
-        `;
-        expenseList.appendChild(li);
-        
-        // Add delete event
-        li.querySelector(".delete-btn").addEventListener("click", function() {
-            deleteExpense(expense.id);
-        });
-    }
-
-    function deleteExpense(id) {
-        // Find expense index
-        const index = expenses.findIndex(exp => exp.id === id);
-        if (index === -1) return;
-        
-        // Get expense details
-        const expense = expenses[index];
-        
-        // Update totals
-        totalExpense -= expense.amount;
-        categoryExpenses[expense.category] -= expense.amount;
-        
-        // Remove from array
-        expenses.splice(index, 1);
-        
-        // Save to localStorage
-        saveExpenses();
-        
-        // Update UI
-        expenseList.innerHTML = "";
-        expenses.forEach(exp => renderExpense(exp));
-        totalExpenseDisplay.textContent = `$${totalExpense.toFixed(2)}`;
-        updateProgress();
-        updateChart();
-        
-        showAlert("Expense deleted successfully!");
-    }
-
-    function saveExpenses() {
-        localStorage.setItem('expenses', JSON.stringify(expenses));
-    }
-
-    function updateProgress() {
-        // Get budget data
-        const totalBudget = parseFloat(budgetData.totalIncome) || 0;
-        const foodBudget = (parseFloat(budgetData.food) || 0) * totalBudget / 100;
-        const travelBudget = (parseFloat(budgetData.travel) || 0) * totalBudget / 100;
-        const accommodationBudget = (parseFloat(budgetData.accommodation) || 0) * totalBudget / 100;
-        const entertainmentBudget = (parseFloat(budgetData.entertainment) || 0) * totalBudget / 100;
-        
-        // Update progress bars for all categories
-        updateProgressBar('food', categoryExpenses.food, foodBudget);
-        updateProgressBar('travel', categoryExpenses.travel, travelBudget);
-        updateProgressBar('accommodation', categoryExpenses.accommodation, accommodationBudget);
-        updateProgressBar('entertainment', categoryExpenses.entertainment, entertainmentBudget);
-        
-        // Update budget status
-        if (totalBudget > 0) {
-            const totalPercentage = (totalExpense / totalBudget) * 100;
-            if (totalPercentage >= 100) {
-                budgetStatus.textContent = "⚠️ Warning: You have exceeded your total budget!";
-                budgetStatus.style.color = "red";
-            } else if (totalPercentage >= 80) {
-                budgetStatus.textContent = "⚠️ Warning: You're approaching your budget limit!";
-                budgetStatus.style.color = "orange";
-            } else {
-                budgetStatus.textContent = "✅ You are within your budget.";
-                budgetStatus.style.color = "green";
-            }
-        }
-    }
-
-    function updateProgressBar(category, spent, budget) {
-        const progressBar = document.getElementById(`${category}-progress`);
-        if (!progressBar) return;
-        
-        if (budget > 0) {
-            const percentage = Math.min((spent / budget) * 100, 100);
-            progressBar.style.width = `${percentage}%`;
-            
-            if (percentage >= 100) {
-                progressBar.style.backgroundColor = "red";
-            } else if (percentage >= 80) {
-                progressBar.style.backgroundColor = "orange";
-            } else {
-                progressBar.style.backgroundColor = "#4CAF50";
-            }
-        } else {
-            progressBar.style.width = "0%";
-        }
-    }
-
-    function checkBudgetLimits(category, amount) {
-        const totalBudget = parseFloat(budgetData.totalIncome) || 0;
-        const categoryPercentage = parseFloat(budgetData[category]) || 0;
-        const categoryBudget = categoryPercentage * totalBudget / 100;
-        
-        if (categoryBudget > 0) {
-            const newTotal = categoryExpenses[category];
-            const percentage = (newTotal / categoryBudget) * 100;
-            
-            if (newTotal > categoryBudget) {
-                showAlert(`⚠️ You have exceeded your ${category} budget by $${(newTotal - categoryBudget).toFixed(2)}!`, "error");
-            } else if (percentage >= 80) {
-                showAlert(`⚠️ Warning: You're approaching your ${category} budget limit!`, "warning");
-            }
-        }
-    }
-
-    function updateChart() {
-        // Update chart with all categories including entertainment
-        expenseChart.data.labels = Object.keys(categoryExpenses);
+        // Update Chart
         expenseChart.data.datasets[0].data = Object.values(categoryExpenses);
         expenseChart.update();
+
+        // Clear input fields
+        expenseName.value = "";
+        expenseAmount.value = "";
+    });
+});addExpenseBtn.addEventListener("click", async () => {
+    const name = expenseName.value.trim();
+    const amount = parseFloat(expenseAmount.value);
+    const category = expenseCategory.value;
+
+    if (name === "" || isNaN(amount) || amount <= 0) {
+        alert("Please enter valid expense details.");
+        return;
     }
 
-    function handleReceiptUpload(event) {
-        const files = event.target.files;
-        uploadedReceipts.innerHTML = "";
-        
-        for (let i = 0; i < files.length; i++) {
-            const img = document.createElement("img");
-            img.src = URL.createObjectURL(files[i]);
-            img.style.width = "100px";
-            img.style.margin = "5px";
-            img.style.borderRadius = "4px";
-            uploadedReceipts.appendChild(img);
+    // Send expense to backend
+    try {
+        const response = await fetch("http://localhost:5000/api/expenses", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, amount, category })
+        });
+
+        const data = await response.json();
+        console.log(data.message);
+
+        if (response.ok) {
+            fetchExpenses(); // Refresh list
         }
-    }
-
-    function showAlert(message, type = "success") {
-        const alertDiv = document.createElement("div");
-        alertDiv.className = `alert ${type}`;
-        alertDiv.textContent = message;
-        
-        const alertsSection = document.querySelector("#alerts");
-        if (!alertsSection) return;
-        
-        alertsSection.appendChild(alertDiv);
-        
-        setTimeout(() => {
-            alertDiv.remove();
-        }, 3000);
+    } catch (error) {
+        console.error("Error adding expense:", error);
     }
 });
+
+// 📌 Fetch expenses from backend
+async function fetchExpenses() {
+    try {
+        const response = await fetch("http://localhost:5000/api/expenses");
+        const expenses = await response.json();
+
+        expenseList.innerHTML = "";
+        expenses.forEach(exp => {
+            const li = document.createElement("li");
+            li.textContent = `${exp.name}: $${exp.amount} (${exp.category})`;
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "❌";
+            deleteBtn.onclick = () => deleteExpense(exp._id);
+
+            li.appendChild(deleteBtn);
+            expenseList.appendChild(li);
+        });
+
+        totalExpenseDisplay.textContent = `$${expenses.reduce((acc, exp) => acc + exp.amount, 0)}`;
+    } catch (error) {
+        console.error("Error fetching expenses:", error);
+    }
+}
+
+// 📌 Delete an Expense
+async function deleteExpense(id) {
+    try {
+        const response = await fetch(`http://localhost:5000/api/expenses/${id}`, {
+            method: "DELETE"
+        });
+
+        if (response.ok) {
+            fetchExpenses(); // Refresh list
+        }
+    } catch (error) {
+        console.error("Error deleting expense:", error);
+    }
+}
+
+// Load expenses on page load
+fetchExpenses();
+
+
+if (amountValue > budgetCategoryLimit) {
+    sendNotification(`⚠️ You exceeded the budget for ${category} by $${amountValue - budgetCategoryLimit}`);
+}
+
+
+
