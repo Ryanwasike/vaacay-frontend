@@ -82,3 +82,70 @@ nav a:hover{
     transform: translateY(-6px);
     text-shadow: #ddd;
 }
+.alert {
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    color: white;
+    animation: fadeInOut 3s ease forwards;
+}
+
+.alert.success {
+    background-color: #4CAF50;
+}
+
+.alert.error {
+    background-color: #f44336;
+}
+
+.alert.warning {
+    background-color: #ff9800;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-10px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+/* Add this to your existing progress bar styling */
+.progress {
+    height: 20px;
+    background: #4CAF50;
+    width: 0;
+    transition: width 0.3s, background-color 0.3s;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+#expense-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 4px solid #3498db;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 5px;
+}
+
+.delete-btn:hover {
+    color: #a71d2a;
+}
+
+#uploaded-receipts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}

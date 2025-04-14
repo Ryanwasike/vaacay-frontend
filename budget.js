@@ -14,7 +14,7 @@ function initBudgetPlanner() {
     updateAllSliderValues();
     
     // Load any saved budget
-    updateBudgetSummary();
+    loadBudget();
 }
 
 function setupEventListeners() {
@@ -77,14 +77,14 @@ function loadTemplate(type) {
     document.getElementById('accommodation-budget').value = accommodation;
     
     updateAllSliderValues();
-    alert(`${type.charAt(0).toUpperCase() + type.slice(1)} template loaded! Adjust as needed.`);
+    showAlert(`${type.charAt(0).toUpperCase() + type.slice(1)} template loaded! Adjust as needed.`);
 }
 
 function saveBudget() {
     const totalIncome = parseFloat(document.getElementById("total-income").value);
 
     if (!totalIncome || totalIncome <= 0) {
-        alert("Please enter a valid budget amount.");
+        showAlert("Please enter a valid budget amount.", 'error');
         return;
     }
 
@@ -93,11 +93,26 @@ function saveBudget() {
         food: parseFloat(document.getElementById("food-budget").value),
         travel: parseFloat(document.getElementById("travel-budget").value),
         accommodation: parseFloat(document.getElementById("accommodation-budget").value),
+        lastUpdated: new Date().toISOString()
     };
 
+    // Save to localStorage
     localStorage.setItem("budgetData", JSON.stringify(budgetData));
     updateBudgetSummary();
-    alert("Budget saved successfully!");
+    showAlert("Budget saved successfully!");
+    sendAlertToNotifications("Budget saved successfully!");
+}
+
+function loadBudget() {
+    const savedBudget = localStorage.getItem("budgetData");
+    if (savedBudget) {
+        const budgetData = JSON.parse(savedBudget);
+        document.getElementById('total-income').value = budgetData.totalIncome;
+        document.getElementById('food-budget').value = budgetData.food;
+        document.getElementById('travel-budget').value = budgetData.travel;
+        document.getElementById('accommodation-budget').value = budgetData.accommodation;
+        updateAllSliderValues();
+    }
 }
 
 function updateBudgetSummary() {
@@ -136,14 +151,37 @@ function updateBudgetSummary() {
 }
 
 function sendAlertToNotifications(message) {
-    localStorage.setItem('latestNotification', message);
+    // Save notification to localStorage
+    const notification = {
+        message,
+        date: new Date().toISOString(),
+        read: false
+    };
+    
+    let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+    notifications.unshift(notification);
+    localStorage.setItem('notifications', JSON.stringify(notifications));
     localStorage.setItem('newNotification', 'true');
     updateNotificationDot();
 }
 
 function updateNotificationDot() {
     const notificationDot = document.getElementById('notification-dot');
-    notificationDot.style.display = localStorage.getItem('newNotification') === 'true' 
-        ? 'inline' 
-        : 'none';
+    const hasNewNotifications = localStorage.getItem('newNotification') === 'true';
+    notificationDot.style.display = hasNewNotifications ? 'inline' : 'none';
 }
+
+function showAlert(message, type = 'success') {
+    // Simple alert replacement
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${type}`;
+    alertDiv.textContent = message;
+    
+    const alertsSection = document.getElementById('alerts');
+    alertsSection.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+
